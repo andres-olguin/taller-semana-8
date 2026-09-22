@@ -1,61 +1,69 @@
-﻿import { NestFactory } from "@nestjs/core";
-import { Module, Injectable, Controller, Get, Post, Delete, Body, Param } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { Module, Controller, Get, Post, Delete, Put, Body, Param, NotFoundException } from "@nestjs/common";
 
-@Injectable()
-export class MascotasService {
-  private mascotas = [
-    { id: 1, nombre: "Firulais", especie: "Perro", edad: 5, vacunada: true },
-    { id: 2, nombre: "Michi", especie: "Gato", edad: 3, vacunada: false },
-  ];
-
-  obtenerTodas() {
-    return this.mascotas;
-  }
-
-  crear(nuevaMascota: any) {
-    const mascota = {
-      id: Date.now(),
-      ...nuevaMascota,
-    };
-    this.mascotas.push(mascota);
-    return mascota;
-  }
-
-  eliminar(id: number) {
-    this.mascotas = this.mascotas.filter((m) => m.id !== id);
-    return { ok: true, id };
-  }
+interface Mascota {
+  id: number;
+  nombre: string;
+  especie: string;
+  edad: number;
+  vacunada: boolean;
 }
 
 @Controller("mascotas")
-export class MascotasController {
-  constructor(private readonly mascotasService: MascotasService) {}
+export class AppController {
+  private mascotas: Mascota[] = [
+    { id: 1, nombre: "Firulais", especie: "Perro", edad: 5, vacunada: true },
+    { id: 2, nombre: "Michi", especie: "Gato", edad: 3, vacunada: false }
+  ];
+  private nextId = 3;
 
   @Get()
-  obtenerTodas() {
-    return this.mascotasService.obtenerTodas();
+  obtenerMascotas(): Mascota[] {
+    return this.mascotas;
   }
 
   @Post()
-  crear(@Body() nuevaMascota: any) {
-    return this.mascotasService.crear(nuevaMascota);
+  crearMascota(@Body() body: Omit<Mascota, "id">): Mascota {
+    const nuevaMascota = { id: this.nextId++, ...body };
+    this.mascotas.push(nuevaMascota);
+    return nuevaMascota;
   }
 
   @Delete(":id")
-  eliminar(@Param("id") id: string) {
-    return this.mascotasService.eliminar(Number(id));
+  eliminarMascota(@Param("id") id: string): { mensaje: string } {
+    const existe = this.mascotas.some((m) => m.id === Number(id));
+    if (!existe) {
+      throw new NotFoundException("Mascota no encontrada");
+    }
+    this.mascotas = this.mascotas.filter((m) => m.id !== Number(id));
+    return { mensaje: "Mascota eliminada" };
+  }
+
+  @Put(":id")
+  actualizarMascota(@Param("id") id: string, @Body() body: Omit<Mascota, "id">): Mascota {
+    const index = this.mascotas.findIndex((m) => m.id === Number(id));
+    if (index === -1) {
+      throw new NotFoundException("Mascota no encontrada");
+    }
+    this.mascotas[index] = { id: Number(id), ...body };
+    return this.mascotas[index];
   }
 }
 
 @Module({
-  controllers: [MascotasController],
-  providers: [MascotasService],
+  imports: [],
+  controllers: [AppController],
+  providers: [],
 })
 export class AppModule {}
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
-  await app.listen(process.env.PORT ?? 3000);
+  const app = await NestFactory.create(AppModule, { cors: true });
+  app.enableCors({
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    allowedHeaders: "*",
+  });
+  await app.listen(3000);
 }
 bootstrap();

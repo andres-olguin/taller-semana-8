@@ -1,13 +1,13 @@
 ﻿<header class="header">
   <div class="contenedor">
     <h1>VetConnect</h1>
-    <p>Gestión simple de mascotas (Angular Client)</p>
+    <p>Gestión simple de mascotas</p>
   </div>
 </header>
 
 <main class="contenedor">
   <form class="formulario" (ngSubmit)="guardarMascota()">
-    <h2>{{ mascotaEditando() ? "Editar mascota: " + mascotaEditando()!.nombre : "Registrar mascota" }}</h2>
+    <h2>{{ mascotaEditando() ? "Editar mascota" : "Registrar mascota" }}</h2>
     <input
       type="text"
       placeholder="Nombre"

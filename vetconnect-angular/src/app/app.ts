@@ -26,7 +26,6 @@ export class App implements OnInit {
   cargando = signal<boolean>(false);
   error = signal<string>("");
 
-  // Estado del formulario y edición
   mascotaEditando = signal<Mascota | null>(null);
   nombre = "";
   especie = "Perro";
@@ -44,7 +43,8 @@ export class App implements OnInit {
         this.mascotas.set(datos);
         this.cargando.set(false);
       },
-      error: () => {
+      error: (err) => {
+        console.error("Error al cargar:", err);
         this.error.set("No fue posible cargar las mascotas desde el servidor NestJS.");
         this.cargando.set(false);
       }
@@ -53,32 +53,43 @@ export class App implements OnInit {
 
   guardarMascota() {
     if (!this.nombre.trim() || this.edad === null) return;
-
-    const datos = {
-      nombre: this.nombre.trim(),
-      especie: this.especie,
-      edad: Number(this.edad),
-      vacunada: this.mascotaEditando() ? this.mascotaEditando()!.vacunada : false
-    };
+    this.error.set("");
 
     const editando = this.mascotaEditando();
+
     if (editando) {
-      this.http.put<Mascota>(`${this.apiUrl}/${editando.id}`, datos).subscribe({
+      const datosActualizados = {
+        nombre: this.nombre.trim(),
+        especie: this.especie,
+        edad: Number(this.edad),
+        vacunada: editando.vacunada
+      };
+
+      this.http.put<Mascota>(`${this.apiUrl}/${editando.id}`, datosActualizados).subscribe({
         next: (actualizada) => {
           this.mascotas.set(this.mascotas().map(m => m.id === actualizada.id ? actualizada : m));
           this.cancelarEdicion();
         },
-        error: () => {
-          this.error.set("Error al actualizar la mascota.");
+        error: (err) => {
+          console.error("Error detallado al hacer PUT:", err);
+          this.error.set("Error al actualizar la mascota. Verifica que NestJS esté corriendo en el puerto 3000.");
         }
       });
     } else {
-      this.http.post<Mascota>(this.apiUrl, datos).subscribe({
+      const nueva = {
+        nombre: this.nombre.trim(),
+        especie: this.especie,
+        edad: Number(this.edad),
+        vacunada: false
+      };
+
+      this.http.post<Mascota>(this.apiUrl, nueva).subscribe({
         next: (creada) => {
           this.mascotas.set([...this.mascotas(), creada]);
           this.limpiarFormulario();
         },
-        error: () => {
+        error: (err) => {
+          console.error("Error al hacer POST:", err);
           this.error.set("Error al registrar la mascota en NestJS.");
         }
       });
@@ -112,7 +123,8 @@ export class App implements OnInit {
           this.cancelarEdicion();
         }
       },
-      error: () => {
+      error: (err) => {
+        console.error("Error al eliminar:", err);
         this.error.set("Error al eliminar la mascota.");
       }
     });
