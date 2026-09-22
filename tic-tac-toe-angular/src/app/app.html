@@ -1,0 +1,18 @@
+﻿<main>
+  <section class="game">
+    <h1>Tic Tac Toe (Angular)</h1>
+    <p class="status">{{ status() }}</p>
+
+    <div class="board">
+      @for (square of squares(); track $index) {
+        <button class="square" (click)="handleClick($index)">
+          {{ square }}
+        </button>
+      }
+    </div>
+
+    <button class="reset" (click)="resetGame()">
+      Nueva partida
+    </button>
+  </section>
+</main>
