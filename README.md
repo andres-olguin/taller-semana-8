@@ -1,8 +1,3 @@
-Sí. El problema es que el README quedó contaminado con código JavaScript y texto legal, y además tiene bloques de código Markdown mal anidados.
-
- Te dejo una **versión limpia y lista para pegar en GitHub**, corrigiendo también el enlace de `LICENSE` para que sea un enlace Markdown normal:
-
- README.md limpio
 
 # 🐾 Taller Semana 8 — Ecosistema Full-Stack Multi-Framework
 
@@ -87,12 +82,4 @@ npm run dev
 
  Distribuido bajo la licencia **MIT**. Consulta el archivo LICENSE para más detalles.
 
- ### En GitHub
 
- 1. Abre el README y pulsa el **✏️ lápiz**.
-2. Haz `Ctrl + A` dentro del editor y elimina todo.
-3. Pega **exactamente** el contenido del bloque anterior.
-4. Pulsa **Commit changes...**.
-5. Confirma el commit.
-
- Con esto desaparecerán `const readme = ...`, el aviso legal y los bloques de Markdown sobrantes.
