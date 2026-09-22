@@ -6,8 +6,8 @@
 </header>
 
 <main class="contenedor">
-  <form class="formulario" (ngSubmit)="registrarMascota()">
-    <h2>Registrar mascota</h2>
+  <form class="formulario" (ngSubmit)="guardarMascota()">
+    <h2>{{ mascotaEditando() ? "Editar mascota: " + mascotaEditando()!.nombre : "Registrar mascota" }}</h2>
     <input
       type="text"
       placeholder="Nombre"
@@ -27,7 +27,16 @@
       [(ngModel)]="edad"
       required
     />
-    <button type="submit">Registrar</button>
+    <div style="display: flex; gap: 10px;">
+      <button type="submit" style="flex: 1;">
+        {{ mascotaEditando() ? "Guardar Cambios" : "Registrar" }}
+      </button>
+      @if (mascotaEditando()) {
+        <button type="button" (click)="cancelarEdicion()" style="flex: 1; background-color: #64748b;">
+          Cancelar
+        </button>
+      }
+    </div>
   </form>
 
   <div class="header-mascotas">
@@ -54,9 +63,19 @@
       <article class="mascota-card">
         <div class="card-top">
           <h3>{{ mascota.nombre }}</h3>
-          <button class="btn-eliminar" title="Eliminar mascota" (click)="eliminarMascota(mascota.id)">
-            ✕
-          </button>
+          <div>
+            <button
+              type="button"
+              title="Editar mascota"
+              (click)="prepararEdicion(mascota)"
+              style="margin-right: 8px; border: none; background: none; cursor: pointer; font-size: 1.2rem;"
+            >
+              ✏️
+            </button>
+            <button class="btn-eliminar" title="Eliminar mascota" (click)="eliminarMascota(mascota.id)">
+              ✕
+            </button>
+          </div>
         </div>
         <p><strong>Especie:</strong> {{ mascota.especie }}</p>
         <p><strong>Edad:</strong> {{ mascota.edad }} años</p>
